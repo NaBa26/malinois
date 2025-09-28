@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 4.0)
-project(malinois C)
-
-set(CMAKE_C_STANDARD 11)
-
-add_executable(malinois main.c)
+cmake_minimum_required(VERSION 3.16)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(malinois)

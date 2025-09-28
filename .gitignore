@@ -1,0 +1,49 @@
+# ------------------------------
+# Build artifacts
+# ------------------------------
+build/
+*.o
+*.obj
+*.elf
+*.bin
+*.map
+*.hex
+*.log
+
+# ------------------------------
+# ESP-IDF generated files
+# ------------------------------
+sdkconfig
+sdkconfig.old
+dependencies.lock
+
+# ------------------------------
+# IDE / Editor stuff
+# ------------------------------
+# CLion / JetBrains
+.idea/
+cmake-build-*/
+
+# VSCode
+.vscode/
+
+# Others
+*.swp
+*.swo
+*.tmp
+*.DS_Store
+Thumbs.db
+
+# ------------------------------
+# Python environment junk
+# ------------------------------
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env/
+
+# ------------------------------
+# Backup files
+# ------------------------------
+*~
