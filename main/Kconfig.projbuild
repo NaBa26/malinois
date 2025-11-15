@@ -1,0 +1,5 @@
+menu "Wifi Packet Capture Configuration"
+        config ENABLE_WIFI_CAPTURE
+            bool "Enable WiFi Capture Feature"
+            default y
+endmenu

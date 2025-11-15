@@ -1,0 +1,5 @@
+mainmenu "Root Configuration for Malinois"
+
+    source "main/Kconfig.projbuild"
+    source "components/ds3231/Kconfig.projbuild"
+
