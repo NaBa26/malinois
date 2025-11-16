@@ -2,6 +2,7 @@
 #include "include/wifi-capture.h"
 #include "ds3231-module.h"
 
+#include "esp_wifi_types.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/ringbuf.h"
 #include "esp_log.h"
@@ -15,6 +16,22 @@ static const char *TAG = "MALINOIS";
 static RingbufHandle_t buf_handle;
 static i2c_master_bus_handle_t bus_handle;
 static i2c_master_dev_handle_t dev_handle;
+
+typedef struct {
+    uint16_t frame_ctrl;
+    uint16_t duration_id;
+    uint8_t addr1[6];
+    uint8_t addr2[6];
+    uint8_t addr3[6];
+    uint16_t seq_ctrl;
+    uint8_t addr4[6];
+} wifi_ieee80211_mac_hdr_t;
+
+typedef struct {
+    wifi_ieee80211_mac_hdr_t hdr;
+    uint8_t payload[];
+} wifi_ieee80211_packet_t;
+
 
 static inline uint8_t bcd_to_dec(uint8_t val) {
     return ((val >> 4) * 10) + (val & 0x0F);
@@ -66,28 +83,67 @@ void packet_consumer_task(void *pvParameters) {
     i2c_master_init(&bus_handle, &dev_handle);
     ESP_LOGI(TAG, "I2C initialized successfully");
 
+
+
+    Time t = { .seconds = 25, .minutes = 25, .hours = 16 };
+    set_init_time(&dev_handle, &t);
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+    ESP_LOGI(TAG, "Current time set as [%02d:%02d:%02d]", t.hours,t.minutes,t.seconds);
+
     for (;;) {
         const auto pkt = (wifi_promiscuous_pkt_t *) xRingbufferReceive(buf_handle, &item_size, portMAX_DELAY);
         if (pkt) {
             register_read(&dev_handle, 0x00, time_data, sizeof(time_data));
 
 
-            uint8_t now[7];
-            now[0] = time_data[0] & 0x7F;
-            now[1] = time_data[1] & 0x7F;
-            now[2] = time_data[2] & 0x3F;
+            const wifi_ieee80211_packet_t *ipkt = (wifi_ieee80211_packet_t *)pkt->payload;
+            const wifi_ieee80211_mac_hdr_t *hdr = &ipkt->hdr;
 
-            register_write(&dev_handle, 0x00, now, 7);
+            const uint8_t frame_type    = (hdr->frame_ctrl & 0x0C) >> 2;
+            const uint8_t frame_subtype = (hdr->frame_ctrl & 0xF0) >> 4;
 
             static int counter = 0;
             if (++counter % 50 == 0) {
+
                 ESP_LOGI(TAG,
-                         "[%02d:%02d:%02d] RSSI=%d len=%d",
-                         bcd_to_dec(now[2]),
-                         bcd_to_dec(now[1]),
-                         bcd_to_dec(now[0]),
+                         "\n"
+                         "⟶ Time: %02d:%02d:%02d\n"
+                         "   RSSI: %d dBm | Len: %d bytes | Rate: %u Mbps\n"
+                         "   Channel: %u | HT: %s | MCS: %u | BW: %s\n"
+                         "   SRC: %02X:%02X:%02X:%02X:%02X:%02X\n"
+                         "   DST: %02X:%02X:%02X:%02X:%02X:%02X\n"
+                         "   Type: %u | Subtype: %u\n",
+
+                         // Timestamp
+                         bcd_to_dec(time_data[2] & 0x3F),
+                         bcd_to_dec(time_data[1] & 0x7F),
+                         bcd_to_dec(time_data[0] & 0x7F),
+
+                         // Basic radio info
                          pkt->rx_ctrl.rssi,
-                         pkt->rx_ctrl.sig_len);
+                         pkt->rx_ctrl.sig_len,
+                         pkt->rx_ctrl.rate,
+
+                         // Channel & PHY
+                         pkt->rx_ctrl.channel,
+                         (pkt->rx_ctrl.sig_mode ? "HT" : "Legacy"),
+                         pkt->rx_ctrl.mcs,
+                         (pkt->rx_ctrl.cwb ? "40MHz" : "20MHz"),
+
+                         // Source MAC
+                         hdr->addr2[0], hdr->addr2[1], hdr->addr2[2],
+                         hdr->addr2[3], hdr->addr2[4], hdr->addr2[5],
+
+                         // Destination MAC
+                         hdr->addr1[0], hdr->addr1[1], hdr->addr1[2],
+                         hdr->addr1[3], hdr->addr1[4], hdr->addr1[5],
+
+                         // Frame classification
+                         frame_type,
+                         frame_subtype
+                );
             }
 
             vRingbufferReturnItem(buf_handle, pkt);
