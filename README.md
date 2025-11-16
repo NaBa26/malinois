@@ -3,3 +3,7 @@ This repo contains the source code for a wi-fi packet capturing tool designed us
 
 <img width="1051" height="465" alt="image" src="https://github.com/user-attachments/assets/dc3b3a3f-7315-402a-8ef0-731604c6da6f" />
 
+
+This is the sample snapshot of how the output in the serial monitor would look like.
+
+<img width="593" height="463" alt="image" src="https://github.com/user-attachments/assets/864bec81-3a15-47cf-9bdb-153f200b0966" />
