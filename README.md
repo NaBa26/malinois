@@ -5,8 +5,7 @@ This firmware puts the ESP32 into Wi-Fi **promiscuous mode** and logs every rece
 - Captures nearby Wi-Fi packets (beacons, probe requests, probe responses, data, etc.).
 - Retrieves the current time from the DS3231 over I²C.
 - Prints logs as provided below.
-
-<img width="400" height="300" alt="image" src="https://github.com/user-attachments/assets/864bec81-3a15-47cf-9bdb-153f200b0966" />
+<img width="400" height="300" alt="image" src="https://github.com/user-attachments/assets/df52259c-d934-4f65-a562-f9b71fee9e6c" />
 
 ## Requirements
 - ESP32 dev board  
