@@ -3,3 +3,28 @@ menu "Wifi Packet Capture Configuration"
             bool "Enable WiFi Capture Feature"
             default y
 endmenu
+
+menu "DS3231 Time Configuration"
+
+config DS3231_SET_HOUR
+    int "Initial hour"
+    range 0 23
+    default 12
+    help
+        Set the initial hour for DS3231.
+
+config DS3231_SET_MINUTE
+    int "Initial minute"
+    range 0 59
+    default 30
+    help
+        Set the initial minute for DS3231.
+
+config DS3231_SET_SECOND
+    int "Initial second"
+    range 0 59
+    default 0
+    help
+        Set the initial second for DS3231.
+
+endmenu
