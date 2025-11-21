@@ -7,6 +7,7 @@ This firmware puts the ESP32 into Wi-Fi **promiscuous mode** and logs every rece
 - Prints logs as provided below.
 
 <img width="400" height="300" alt="image" src="https://github.com/user-attachments/assets/864bec81-3a15-47cf-9bdb-153f200b0966" />
+
 ## Requirements
 - ESP32 dev board  
 - DS3231 RTC module  
